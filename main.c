@@ -1,7 +1,13 @@
-//---------//
-// Bugs    //
-//---------//
+//--------//
+//  Bugs  //
+//--------//
 // None! (at least I haven't noticed any)
+
+//--------//
+//  Todo  // 
+//--------//
+// -- Implement game start
+// -- Implement game end
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -67,7 +73,6 @@ void textProDraw(struct TextPro textPro) {
 //------------------//
 const int screenWidth = 360;    // Original: 360
 const int screenHeight = 460;   // Original: 460
-//const int defaultRadius = 30;   // Original: 30
 const int defaultFontSize = 20; // Original: 20
 const int gap = 10;             // Size of the gap between every circle; Original: 10
 const float startTime = 20;
@@ -346,7 +351,6 @@ static void DrawGame(void) {
             DrawText("mouseNotInCircle", 0, screenHeight-30, 30, PURPLE);
         }
         DrawText(TextFormat("CTK: %d", circlesToKill), 0, screenHeight/2, 20, BLACK);
-        //DrawText(TextFormat("%x", ColorToInt(circleToEliminate.color)), screenWidth/2+20, screenHeight-30, 30, RED);
     EndDrawing();
 }
 
