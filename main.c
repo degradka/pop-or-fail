@@ -1,13 +1,12 @@
 //--------//
 //  Bugs  //
 //--------//
-// None! (at least I haven't noticed any)
+// None! (yet)
 
 //--------//
 //  Todo  // 
 //--------//
-// -- Implement game start
-// -- Implement game end
+// -- Implement a delay after game ends, so player won't accidentaly start a new game
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -71,6 +70,7 @@ void textProDraw(struct TextPro textPro) {
 //------------------//
 // Global Variables //
 //------------------//
+const char *gameTitle = "Pop or Die";
 const int screenWidth = 360;    // Original: 360
 const int screenHeight = 460;   // Original: 460
 const int defaultFontSize = 20; // Original: 20
@@ -91,8 +91,11 @@ static bool isMouseInCircle;
 static int hoveredCircle[2];
 static float time = 20.0f;
 static int score;
+static int endScore;
+static int highscore;
 static int circlesToKill;
-static bool gameEnded = false; 
+static bool gameEnded = false;
+static bool gameStarted = false;
 
 //------------------//
 // Module Functions //
@@ -104,7 +107,7 @@ static void UnloadGame(void);
 static void UpdateDrawFrame(void);
 
 int main(void) {
-    InitWindow(screenWidth, screenHeight, "Pop OR Fail");
+    InitWindow(screenWidth, screenHeight, gameTitle);
     InitGame();
 
     while (!WindowShouldClose()) {
@@ -304,10 +307,16 @@ static void UpdateGame(void) {
     int mouseX = GetMouseX();
     int mouseY = GetMouseY();
     Vector2 mousePos = (Vector2){ mouseX, mouseY };
-    if (!gameEnded) {
+    if (!gameEnded && gameStarted) {
         time = time - 1 * delta;
-    } else {
-        time = 0.0f;
+    } else if (!gameEnded && !gameStarted) {
+        time = startTime;
+    } else if (gameEnded && !gameStarted) {
+        time = startTime;
+        if (endScore > highscore) {
+            highscore = endScore;
+        }
+        score = 0;
     }
     UpdateText();
     CheckCircleCollision(mousePos);
@@ -323,37 +332,77 @@ static void UpdateGame(void) {
         CheckIfPlayerDoneKillingThosePoorCircles();
         return;
     }
-    
-    // !!!
-    /*
+
     if (gameEnded == true) {
         return;
     }
-    if (time <= 0.0f) {
+
+    if (time <= 0.0f && !gameEnded) {
         gameEnded = true;
+        gameStarted = false;
+        endScore = score;
+        SetupCircles();
+        SetupCircleToEliminate();
+        SetupCirclesToKill();
     }
-    */
 }
 
 static void DrawGame(void) {
-    BeginDrawing();
+    if (!gameStarted && !gameEnded) {
+        BeginDrawing();
 
-        ClearBackground(backgroundColor);
+            ClearBackground(backgroundColor);
 
-        DrawCircles();
-        circleDraw(circleToEliminate);
-        roundedRectangleDraw(scoreRectangle);
-        roundedRectangleDraw(timeRectangle);
+            DrawText(gameTitle, screenWidth/2-MeasureText(gameTitle, 40)/2, screenHeight/2-40, 40, BLACK);
+            DrawText("Click to start game", screenWidth/2-MeasureText("Click to start game", 30)/2, screenHeight/2+30, 30, BLACK);
 
-        textProDraw(scoreText);
-        textProDraw(timeText);
-        if (isMouseInCircle == true) {
-            DrawText("mouseInCircle", 0, screenHeight-30, 30, PURPLE);
-        } else {
-            DrawText("mouseNotInCircle", 0, screenHeight-30, 30, PURPLE);
-        }
-        DrawText(TextFormat("CTK: %d", circlesToKill), 0, screenHeight/2, 20, BLACK);
-    EndDrawing();
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                gameStarted = true;
+                gameEnded = false;
+            }
+
+        EndDrawing();
+    } else if (gameStarted && !gameEnded) {
+        BeginDrawing();
+
+            ClearBackground(backgroundColor);
+
+            DrawCircles();
+            circleDraw(circleToEliminate);
+            roundedRectangleDraw(scoreRectangle);
+            roundedRectangleDraw(timeRectangle);
+
+            textProDraw(scoreText);
+            textProDraw(timeText);
+
+            /*
+            if (isMouseInCircle == true) {
+                DrawText("mouseInCircle", 0, screenHeight-30, 30, PURPLE);
+            } else {
+                DrawText("mouseNotInCircle", 0, screenHeight-30, 30, PURPLE);
+            }
+
+            DrawText(TextFormat("CTK: %d", circlesToKill), 0, screenHeight/2, 20, BLACK);
+            */
+
+        EndDrawing();
+    } else {
+        BeginDrawing();
+
+            ClearBackground(backgroundColor);
+
+            DrawText("Time is up!", screenWidth/2-MeasureText("Time is up!", 40)/2, screenHeight/2-120, 40, BLACK);
+            DrawText(TextFormat("Highscore: %d", highscore), screenWidth/2-MeasureText(TextFormat("Highscore: %d", highscore), 24)/2, screenHeight/2-60, 24, BLACK);
+            DrawText(TextFormat("You've scored: %d points!", endScore), screenWidth/2-MeasureText(TextFormat("You've scored: %d points!", endScore), 24)/2, screenHeight/2-30, 24, BLACK);
+
+            DrawText("Click to start game", screenWidth/2-MeasureText("Click to start game", 30)/2, screenHeight/2+60, 30, BLACK);
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                gameStarted = true;
+                gameEnded = false;
+            }
+
+        EndDrawing();
+    }
 }
 
 static void UpdateDrawFrame(void) {
