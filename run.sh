@@ -1,2 +1,2 @@
 make
-./mainv3
+./main
