@@ -1,16 +1,19 @@
 //---------//
 // Bugs    //
 //---------//
-// Rarely, the game presents a circle with a color that doesn't exist on the sheet, not sure what causes this
-
+// -- Sometimes, after the new circle sheet appears, the circle which was the last circle player clicked on
+// appears with background color
+// -- Player can hold down LMB and scroll over the circles and the game will count it as valid input 
+// (should be an easy fix)
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "raylib.h"
+#include <raylib.h>
 
 //---------//
 // Defines //
 //---------//
+#define defaultRadius        30
 #define CIRCLE_DEFAULT       { defaultRadius, (Vector2) {0, 0}, BLACK }
 #define RECTANGLE_DEFAULT    { (Vector2) {0, 0}, (Vector2) {130, 50}, 0.6f, 2, GRAY }
 #define MAX_ROW              5
@@ -69,7 +72,7 @@ void textProDraw(struct TextPro textPro) {
 //------------------//
 const int screenWidth = 360;    // Original: 360
 const int screenHeight = 460;   // Original: 460
-const int defaultRadius = 30;   // Original: 30
+//const int defaultRadius = 30;   // Original: 30
 const int defaultFontSize = 20; // Original: 20
 const int gap = 10;             // Size of the gap between every circle; Original: 10
 const float startTime = 20;
