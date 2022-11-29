@@ -323,6 +323,8 @@ static void UpdateGame(void) {
         CheckIfPlayerDoneKillingThosePoorCircles();
         return;
     }
+    
+    // !!!
     /*
     if (gameEnded == true) {
         return;
