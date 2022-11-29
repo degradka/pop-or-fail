@@ -1,7 +1,13 @@
-//---------//
-// Bugs    //
-//---------//
+//--------//
+//  Bugs  //
+//--------//
 // None! (at least I haven't noticed any)
+
+//--------//
+//  Todo  // 
+//--------//
+// -- Implement game start
+// -- Implement game end
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -56,8 +62,6 @@ typedef struct TextPro {
     float fontSize;
     float spacing;
     Color color;
-
-    void (*Draw)(struct TextPro);
 } TextPro;
 
 void textProDraw(struct TextPro textPro) {
@@ -69,7 +73,6 @@ void textProDraw(struct TextPro textPro) {
 //------------------//
 const int screenWidth = 360;    // Original: 360
 const int screenHeight = 460;   // Original: 460
-//const int defaultRadius = 30;   // Original: 30
 const int defaultFontSize = 20; // Original: 20
 const int gap = 10;             // Size of the gap between every circle; Original: 10
 const float startTime = 20;
@@ -89,8 +92,7 @@ static int hoveredCircle[2];
 static float time = 20.0f;
 static int score;
 static int circlesToKill;
-//static bool colorPresent[MAX_COLOR] = {true, true, true, true};
-static bool gameEnded;
+static bool gameEnded = false; 
 
 //------------------//
 // Module Functions //
@@ -118,86 +120,40 @@ static Color GetRandomColor(void) {
     return (Color[MAX_COLOR]){ RED, GREEN, BLUE, GOLD }[rand() % MAX_COLOR];
 }
 
-// Get a random color only if it's present on the circle sheet
-static Color GetRandomColorFromCircles(void) {
-    Color colors[MAX_COLOR] = { RED, GREEN, BLUE, GOLD };
-    bool skipColorElse[MAX_COLOR];  // Red, Green, Blue, Gold
-    bool colorPresent[MAX_COLOR]; // Red, green, blue, gold
-
+// Get the amount of colors that are present in the sheet
+static int GetRandomPresentColors() {
+    int count = 0;
+    bool whichArePresent[4] = { false, false, false, false }; // Red, Green, Blue, Gold
     for (int i = 0; i < MAX_ROW; i++) {
         for (int j = 0; j < MAX_COL; j++) {
-            // Check if a color is present in the circle sheet
 
             // Red
-            if (ColorToInt(circles[i][j].color) == ColorToInt(colors[0])) {
-                colorPresent[0] = skipColorElse[0] = true;
-            } else {
-                if (!skipColorElse[0]) colorPresent[0] = false;
+            if (!whichArePresent[0]
+            && ColorToInt(circles[i][j].color) == ColorToInt(RED)) {
+                whichArePresent[0] = true;
+                count++;
             }
             // Green
-            if (ColorToInt(circles[i][j].color) == ColorToInt(colors[1])) {
-                colorPresent[1] = skipColorElse[1] = true;
-            } else {
-                if (!skipColorElse[1]) colorPresent[1] = false;
+            if (!whichArePresent[1]
+            && ColorToInt(circles[i][j].color) == ColorToInt(GREEN)) {
+                whichArePresent[1] = true;
+                count++;
             }
             // Blue
-            if (ColorToInt(circles[i][j].color) == ColorToInt(colors[2])) {
-                colorPresent[2] = skipColorElse[2] = true;
-            } else {
-                if (!skipColorElse[2]) colorPresent[2] = false;
+            if (!whichArePresent[2]
+            && ColorToInt(circles[i][j].color) == ColorToInt(BLUE)) {
+                whichArePresent[2] = true;
+                count++;
             }
             // Gold
-            if (ColorToInt(circles[i][j].color) == ColorToInt(colors[3])) {
-                colorPresent[3] = skipColorElse[3] = true;
-            } else {
-                if (!skipColorElse[3]) colorPresent[3] = false;
+            if (!whichArePresent[3]
+            && ColorToInt(circles[i][j].color) == ColorToInt(GOLD)) {
+                whichArePresent[3] = true;
+                count++;
             }
         }
     }
-
-    for (int i = 0; i < MAX_COLOR; i++) {
-        skipColorElse[i] = false;
-    }
-
-    int replaceColorIndex;
-    // Replace any color that's not present in the sheet
-
-    for (int i = 0; i < MAX_COLOR; i++) {
-        if (colorPresent[0] == false) {
-            while (true) {
-                if (ColorToInt(colors[replaceColorIndex = rand() % MAX_COLOR]) != ColorToInt(RED)) {
-                    colors[0] = colors[replaceColorIndex];
-                    break;
-                }
-            }
-        }
-        if (colorPresent[1] == false) {
-            while (true) {
-                if (ColorToInt(colors[replaceColorIndex = rand() % MAX_COLOR]) != ColorToInt(GREEN)) {
-                    colors[1] = colors[replaceColorIndex];
-                    break;
-                }
-            }
-        }
-        if (colorPresent[2] == false) {
-            while (true) {
-                if (ColorToInt(colors[replaceColorIndex = rand() % MAX_COLOR]) != ColorToInt(BLUE)) {
-                    colors[2] = colors[replaceColorIndex];
-                    break;
-                }
-            }
-        }
-        if (colorPresent[3] == false) {
-            while (true) {
-                if (ColorToInt(colors[replaceColorIndex = rand() % MAX_COLOR]) != ColorToInt(GOLD)) {
-                    colors[3] = colors[replaceColorIndex];
-                    break;
-                }
-            }
-        }
-    }
-
-    return colors[rand() % MAX_COLOR];
+    return count;
 }
 
 static void SetupCircles(void) {
@@ -229,6 +185,11 @@ static void SetupCircles(void) {
             // Color
             circles[i][j].color = GetRandomColor();
         }
+    }
+
+    // If the sheet doesn't have all 4 colors, re-setup the circles
+    if (GetRandomPresentColors() != 4) {
+        SetupCircles();
     }
 }
 
@@ -291,20 +252,10 @@ static void UpdateText(void) {
     timeText.position = (Vector2){ timeRectangle.position.x+(timeRectangle.size.x-MeasureText(timeTextValue, defaultFontSize))/2, circleToEliminate.position.y };
 }
 
-// Check if any circle is present on the sheet
-static bool AreCirclesPresent() {
-    for (int i = 0; i < MAX_ROW; i++) {
-        for (int j = 0; j < MAX_COL; j++) {
-            if (ColorToInt(circles[i][j].color) != ColorToInt(backgroundColor)) return true;
-        }
-    }
-    return false;
-}
-
 static void CheckCircleCollision(Vector2 mousePos) {
     for (int i = 0; i < MAX_ROW; i++) {
         for (int j = 0; j < MAX_COL; j++) {
-            if (CheckCollisionPointCircle(mousePos, circles[i][j].position, defaultRadius) && ColorToInt(circles[i][j].color) != ColorToInt(backgroundColor)) { ///ФЫВАФЫВЫВФЫ
+            if (CheckCollisionPointCircle(mousePos, circles[i][j].position, defaultRadius) && ColorToInt(circles[i][j].color) != ColorToInt(backgroundColor)) { 
                 hoveredCircle[0] = i;
                 hoveredCircle[1] = j;
                 isMouseInCircle = true;
@@ -353,38 +304,35 @@ static void UpdateGame(void) {
     int mouseX = GetMouseX();
     int mouseY = GetMouseY();
     Vector2 mousePos = (Vector2){ mouseX, mouseY };
-    if (!gameEnded) time = time - 1 * delta;
+    if (!gameEnded) {
+        time = time - 1 * delta;
+    } else {
+        time = 0.0f;
+    }
     UpdateText();
     CheckCircleCollision(mousePos);
 
     // Check if player is clicking the correct circle
-    for (int i = 0; i < MAX_ROW; i++) {
-        for (int j = 0; j < MAX_COL; j++) {
-            if (gameEnded == false
-            && isMouseInCircle == true
-            && ColorToInt(circles[hoveredCircle[0]][hoveredCircle[1]].color) == ColorToInt(circleToEliminate.color)
-            && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                circlesToKill -= 1;
-                score++;
-                circles[hoveredCircle[0]][hoveredCircle[1]].color = backgroundColor;
-                CheckIfPlayerDoneKillingThosePoorCircles();
-                if (!AreCirclesPresent()) {
-                    gameEnded = true;
-                    return;
-                }
-                //circleToEliminate.color = GetRandomColorFromCircles();
-                return;
-            }
-        }
+    if (gameEnded == false
+    && isMouseInCircle == true
+    && ColorToInt(circles[hoveredCircle[0]][hoveredCircle[1]].color) == ColorToInt(circleToEliminate.color)
+    && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        circlesToKill--;
+        score++;
+        circles[hoveredCircle[0]][hoveredCircle[1]].color = backgroundColor;
+        CheckIfPlayerDoneKillingThosePoorCircles();
+        return;
     }
-    if (time == 0.0f) {
+    
+    // !!!
+    /*
+    if (gameEnded == true) {
+        return;
+    }
+    if (time <= 0.0f) {
         gameEnded = true;
     }
-    if (gameEnded == true) {
-        if (time == 0.0f) {
-
-        }
-    }
+    */
 }
 
 static void DrawGame(void) {
@@ -399,19 +347,12 @@ static void DrawGame(void) {
 
         textProDraw(scoreText);
         textProDraw(timeText);
-        /*
-        DrawText(colorPresent[0] ? "yes" : "no", 0*90, 0, 30, RED);
-        DrawText(colorPresent[1] ? "yes" : "no", 1*90, 0, 30, GREEN);
-        DrawText(colorPresent[2] ? "yes" : "no", 2*90, 0, 30, BLUE);
-        DrawText(colorPresent[3] ? "yes" : "no", 3*90, 0, 30, GOLD);
-        */
         if (isMouseInCircle == true) {
             DrawText("mouseInCircle", 0, screenHeight-30, 30, PURPLE);
         } else {
             DrawText("mouseNotInCircle", 0, screenHeight-30, 30, PURPLE);
         }
         DrawText(TextFormat("CTK: %d", circlesToKill), 0, screenHeight/2, 20, BLACK);
-        //DrawText(TextFormat("%x", ColorToInt(circleToEliminate.color)), screenWidth/2+20, screenHeight-30, 30, RED);
     EndDrawing();
 }
 
