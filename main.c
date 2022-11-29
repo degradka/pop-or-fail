@@ -1,10 +1,7 @@
 //---------//
 // Bugs    //
 //---------//
-// -- Sometimes, after the new circle sheet appears, the circle which was the last circle player clicked on
-// appears with background color
-// -- Player can hold down LMB and scroll over the circles and the game will count it as valid input 
-// (should be an easy fix)
+// None! (at least I haven't noticed any)
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -366,7 +363,7 @@ static void UpdateGame(void) {
             if (gameEnded == false
             && isMouseInCircle == true
             && ColorToInt(circles[hoveredCircle[0]][hoveredCircle[1]].color) == ColorToInt(circleToEliminate.color)
-            && IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+            && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 circlesToKill -= 1;
                 score++;
                 circles[hoveredCircle[0]][hoveredCircle[1]].color = backgroundColor;
