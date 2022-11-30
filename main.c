@@ -6,7 +6,11 @@
 //--------//
 //  Todo  // 
 //--------//
-// -- Implement a delay after game ends, so player won't accidentaly start a new game
+// -- Tweak score addition on line 293
+// -- Add sounds using some 8bit sound generator
+// -- Calculate and display mistakes (clicking on wrong circles) on game end screen
+// -- Calculate and display accuracy on game end screen
+// -- Display authors's nicknames somewhere in the game (likely on the title screen)
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -15,12 +19,13 @@
 //---------//
 // Defines //
 //---------//
-#define defaultRadius        30
-#define CIRCLE_DEFAULT       { defaultRadius, (Vector2) {0, 0}, BLACK }
-#define RECTANGLE_DEFAULT    { (Vector2) {0, 0}, (Vector2) {130, 50}, 0.6f, 2, GRAY }
-#define MAX_ROW              5
-#define MAX_COL              5
-#define MAX_COLOR            4
+#define CIRCLE_DEFAULT        { defaultRadius, (Vector2) {0, 0}, BLACK }
+#define RECTANGLE_DEFAULT     { (Vector2) {0, 0}, (Vector2) {130, 50}, 0.6f, 2, GRAY }
+#define MAX_ROW               5
+#define MAX_COL               5
+#define MAX_COLOR             4
+#define defaultRadius         30
+#define defaultTimeOutTime    1.5f
 
 //----------------------//
 // Types and Structures //
@@ -75,7 +80,7 @@ const int screenWidth = 360;    // Original: 360
 const int screenHeight = 460;   // Original: 460
 const int defaultFontSize = 20; // Original: 20
 const int gap = 10;             // Size of the gap between every circle; Original: 10
-const float startTime = 20;
+const float startTime = 20.0f;
 static Circle circles[MAX_COL][MAX_ROW];
 
 static Circle circleToEliminate = CIRCLE_DEFAULT;
@@ -89,13 +94,15 @@ static Color backgroundColor = RAYWHITE;
 
 static bool isMouseInCircle;
 static int hoveredCircle[2];
-static float time = 20.0f;
+static float time = startTime;
 static int score;
 static int endScore;
 static int highscore;
 static int circlesToKill;
 static bool gameEnded = false;
 static bool gameStarted = false;
+static bool timeOut = false;
+static float timeOutTime = defaultTimeOutTime;
 
 //------------------//
 // Module Functions //
@@ -283,6 +290,7 @@ static void SetupCirclesToKill(void) {
 
 static void CheckIfPlayerDoneKillingThosePoorCircles(void) {
     if (circlesToKill == 0) {
+        time = time + 0.5f;
         SetupCircles();
         SetupCircleToEliminate();
         SetupCirclesToKill();
@@ -322,8 +330,10 @@ static void UpdateGame(void) {
     CheckCircleCollision(mousePos);
 
     // Check if player is clicking the correct circle
-    if (gameEnded == false
-    && isMouseInCircle == true
+    if (!gameEnded
+    && !timeOut
+    && gameStarted
+    && isMouseInCircle
     && ColorToInt(circles[hoveredCircle[0]][hoveredCircle[1]].color) == ColorToInt(circleToEliminate.color)
     && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         circlesToKill--;
@@ -337,18 +347,29 @@ static void UpdateGame(void) {
         return;
     }
 
-    if (time <= 0.0f && !gameEnded) {
-        gameEnded = true;
+    if (time <= 0.0f && !gameEnded && !timeOut) {
+        timeOut = true;
+        gameEnded = false;
         gameStarted = false;
         endScore = score;
         SetupCircles();
         SetupCircleToEliminate();
         SetupCirclesToKill();
     }
+
+    if (timeOutTime >= 0.0f && !gameEnded && timeOut) {
+        timeOutTime = timeOutTime - 1 * delta;
+    }
+
+    if (timeOutTime <= 0.0f && !gameEnded && timeOut && !gameStarted) {
+        gameEnded = true;
+        timeOut = false;
+        timeOutTime = defaultTimeOutTime;
+    }
 }
 
 static void DrawGame(void) {
-    if (!gameStarted && !gameEnded) {
+    if (!gameStarted && !gameEnded && !timeOut) {
         BeginDrawing();
 
             ClearBackground(backgroundColor);
@@ -359,10 +380,11 @@ static void DrawGame(void) {
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 gameStarted = true;
                 gameEnded = false;
+                timeOut =  false;
             }
 
         EndDrawing();
-    } else if (gameStarted && !gameEnded) {
+    } else if (gameStarted && !gameEnded && !timeOut) {
         BeginDrawing();
 
             ClearBackground(backgroundColor);
@@ -386,12 +408,12 @@ static void DrawGame(void) {
             */
 
         EndDrawing();
-    } else {
+    } else if (!gameStarted && gameEnded && !timeOut) {
         BeginDrawing();
 
             ClearBackground(backgroundColor);
 
-            DrawText("Time is up!", screenWidth/2-MeasureText("Time is up!", 40)/2, screenHeight/2-120, 40, BLACK);
+            //DrawText("Time is up!", screenWidth/2-MeasureText("Time is up!", 40)/2, screenHeight/2-120, 40, BLACK);
             DrawText(TextFormat("Highscore: %d", highscore), screenWidth/2-MeasureText(TextFormat("Highscore: %d", highscore), 24)/2, screenHeight/2-60, 24, BLACK);
             DrawText(TextFormat("You've scored: %d points!", endScore), screenWidth/2-MeasureText(TextFormat("You've scored: %d points!", endScore), 24)/2, screenHeight/2-30, 24, BLACK);
 
@@ -399,7 +421,19 @@ static void DrawGame(void) {
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 gameStarted = true;
                 gameEnded = false;
+                SetupCircles();
+                SetupCircleToEliminate();
+                SetupCirclesToKill();
             }
+
+        EndDrawing();
+    } else if (!gameStarted && !gameEnded && timeOut) {
+        BeginDrawing();
+
+            ClearBackground(backgroundColor);
+
+            // DrawText(TextFormat("timeOutTime: %f", timeOutTime), screenWidth/2-MeasureText(TextFormat("timeOutTime: %f"), timeOutTime), screenHeight/2-20, 20, PURPLE);
+            DrawText("Time is out!", screenWidth/2-MeasureText(TextFormat("Time is Out!"), 30)/2, screenHeight/2-30, 30, BLACK);
 
         EndDrawing();
     }
