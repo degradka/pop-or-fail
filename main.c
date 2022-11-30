@@ -6,11 +6,8 @@
 //--------//
 //  Todo  // 
 //--------//
-// -- Tweak score addition on line 293
-// -- Add sounds using some 8bit sound generator
 // -- Calculate and display mistakes (clicking on wrong circles) on game end screen
 // -- Calculate and display accuracy on game end screen
-// -- Display authors's nicknames somewhere in the game (likely on the title screen)
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -82,6 +79,8 @@ const int defaultFontSize = 20; // Original: 20
 const int gap = 10;             // Size of the gap between every circle; Original: 10
 const float startTime = 20.0f;
 static Circle circles[MAX_COL][MAX_ROW];
+static Sound fxDone;
+static Sound fxTimeOut;
 
 static Circle circleToEliminate = CIRCLE_DEFAULT;
 static RoundedRectangle scoreRectangle = RECTANGLE_DEFAULT;
@@ -98,11 +97,14 @@ static float time = startTime;
 static int score;
 static int endScore;
 static int highscore;
+static bool newHighscore = false;
 static int circlesToKill;
 static bool gameEnded = false;
 static bool gameStarted = false;
 static bool timeOut = false;
 static float timeOutTime = defaultTimeOutTime;
+static bool timeOutSoundPlayed = false;
+static bool soundsEnabled = true;
 
 //------------------//
 // Module Functions //
@@ -115,6 +117,7 @@ static void UpdateDrawFrame(void);
 
 int main(void) {
     InitWindow(screenWidth, screenHeight, gameTitle);
+    InitAudioDevice();
     InitGame();
 
     while (!WindowShouldClose()) {
@@ -291,6 +294,7 @@ static void SetupCirclesToKill(void) {
 static void CheckIfPlayerDoneKillingThosePoorCircles(void) {
     if (circlesToKill == 0) {
         time = time + 0.5f;
+        if (soundsEnabled) PlaySound(fxDone);
         SetupCircles();
         SetupCircleToEliminate();
         SetupCirclesToKill();
@@ -299,6 +303,8 @@ static void CheckIfPlayerDoneKillingThosePoorCircles(void) {
 
 static void InitGame(void) {
     SetMousePosition(0, 0);
+    fxDone = LoadSound("resources/done.wav");
+    fxTimeOut = LoadSound("resources/timeout.wav");
     SetupCircles();
     SetupCircleToEliminate();
     SetupCirclesToKill();
@@ -307,7 +313,10 @@ static void InitGame(void) {
 }
 
 static void UnloadGame(void) {
-    //
+    UnloadSound(fxDone);
+    UnloadSound(fxTimeOut);
+
+    CloseAudioDevice();
 }
 
 static void UpdateGame(void) {
@@ -322,6 +331,7 @@ static void UpdateGame(void) {
     } else if (gameEnded && !gameStarted) {
         time = startTime;
         if (endScore > highscore) {
+            newHighscore = true;
             highscore = endScore;
         }
         score = 0;
@@ -348,6 +358,8 @@ static void UpdateGame(void) {
     }
 
     if (time <= 0.0f && !gameEnded && !timeOut) {
+        timeOutSoundPlayed = false;
+        newHighscore = false;
         timeOut = true;
         gameEnded = false;
         gameStarted = false;
@@ -359,6 +371,10 @@ static void UpdateGame(void) {
 
     if (timeOutTime >= 0.0f && !gameEnded && timeOut) {
         timeOutTime = timeOutTime - 1 * delta;
+        if (!timeOutSoundPlayed) {
+            if (soundsEnabled) PlaySound(fxTimeOut);
+            timeOutSoundPlayed = true;
+        }
     }
 
     if (timeOutTime <= 0.0f && !gameEnded && timeOut && !gameStarted) {
@@ -375,13 +391,18 @@ static void DrawGame(void) {
             ClearBackground(backgroundColor);
 
             DrawText(gameTitle, screenWidth/2-MeasureText(gameTitle, 40)/2, screenHeight/2-40, 40, BLACK);
-            DrawText("Click to start game", screenWidth/2-MeasureText("Click to start game", 30)/2, screenHeight/2+30, 30, BLACK);
+            DrawText("Click to start", screenWidth/2-MeasureText("Click to start", 30)/2, screenHeight/2+30, 30, BLACK);
+
+            DrawText("Sounds (S)", screenWidth/2-171, screenHeight/2+200, 24, soundsEnabled ? GREEN : RED);
+            DrawText("degradka x mamalord", screenWidth/2+10, screenHeight/2+204, 16, BLACK);
 
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 gameStarted = true;
                 gameEnded = false;
                 timeOut =  false;
             }
+
+            if (IsKeyPressed(KEY_S)) soundsEnabled = soundsEnabled ? false : true;
 
         EndDrawing();
     } else if (gameStarted && !gameEnded && !timeOut) {
@@ -397,27 +418,18 @@ static void DrawGame(void) {
             textProDraw(scoreText);
             textProDraw(timeText);
 
-            /*
-            if (isMouseInCircle == true) {
-                DrawText("mouseInCircle", 0, screenHeight-30, 30, PURPLE);
-            } else {
-                DrawText("mouseNotInCircle", 0, screenHeight-30, 30, PURPLE);
-            }
-
-            DrawText(TextFormat("CTK: %d", circlesToKill), 0, screenHeight/2, 20, BLACK);
-            */
-
         EndDrawing();
     } else if (!gameStarted && gameEnded && !timeOut) {
         BeginDrawing();
 
             ClearBackground(backgroundColor);
 
-            //DrawText("Time is up!", screenWidth/2-MeasureText("Time is up!", 40)/2, screenHeight/2-120, 40, BLACK);
-            DrawText(TextFormat("Highscore: %d", highscore), screenWidth/2-MeasureText(TextFormat("Highscore: %d", highscore), 24)/2, screenHeight/2-60, 24, BLACK);
-            DrawText(TextFormat("You've scored: %d points!", endScore), screenWidth/2-MeasureText(TextFormat("You've scored: %d points!", endScore), 24)/2, screenHeight/2-30, 24, BLACK);
+            if (newHighscore) DrawText("New highscore!", screenWidth/2-MeasureText("New highscore!", 28)/2, screenHeight/2-96, 28, BLACK);
 
-            DrawText("Click to start game", screenWidth/2-MeasureText("Click to start game", 30)/2, screenHeight/2+60, 30, BLACK);
+            DrawText(TextFormat("Highscore: %d", highscore), screenWidth/2-MeasureText(TextFormat("Highscore: %d", highscore), 24)/2, screenHeight/2-60, 24, BLACK);
+            DrawText(TextFormat("You've scored: %d", endScore), screenWidth/2-MeasureText(TextFormat("You've scored: %d", endScore), 24)/2, screenHeight/2-30, 24, BLACK);
+
+            DrawText("Click to start again", screenWidth/2-MeasureText("Click to start again", 30)/2, screenHeight/2+60, 30, BLACK);
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 gameStarted = true;
                 gameEnded = false;
@@ -432,7 +444,6 @@ static void DrawGame(void) {
 
             ClearBackground(backgroundColor);
 
-            // DrawText(TextFormat("timeOutTime: %f", timeOutTime), screenWidth/2-MeasureText(TextFormat("timeOutTime: %f"), timeOutTime), screenHeight/2-20, 20, PURPLE);
             DrawText("Time is out!", screenWidth/2-MeasureText(TextFormat("Time is Out!"), 30)/2, screenHeight/2-30, 30, BLACK);
 
         EndDrawing();
