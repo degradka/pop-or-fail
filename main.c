@@ -75,7 +75,7 @@ void textProDraw(struct TextPro textPro) {
 //------------------//
 // Global Variables //
 //------------------//
-const char *gameTitle = "Pop or Die";
+const char *gameTitle = "Pop or Fail";
 const int screenWidth = 360;    // Original: 360
 const int screenHeight = 460;   // Original: 460
 const int defaultFontSize = 20; // Original: 20
