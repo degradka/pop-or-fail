@@ -5,7 +5,7 @@
 ### Description
 
 Simple game written in C using [Raylib](https://raylib.com) for [20 Second Game Jam](https://itch.io/jam/20-second-game-jam)
-You have to pop the circles that match the color of the circle at the top
+You have to pop the circles that match the color of the circle at the top.
 
 ### Screenshots
 <br>
