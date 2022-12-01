@@ -22,6 +22,7 @@
 #define MAX_COL               5
 #define MAX_COLOR             4
 #define defaultRadius         30
+#define defaultStartTime      20.0f
 #define defaultTimeOutTime    1.5f
 
 //----------------------//
@@ -77,7 +78,6 @@ const int screenWidth = 360;    // Original: 360
 const int screenHeight = 460;   // Original: 460
 const int defaultFontSize = 20; // Original: 20
 const int gap = 10;             // Size of the gap between every circle; Original: 10
-const float startTime = 20.0f;
 static Circle circles[MAX_COL][MAX_ROW];
 static Sound fxDone;
 static Sound fxTimeOut;
@@ -93,7 +93,7 @@ static Color backgroundColor = RAYWHITE;
 
 static bool isMouseInCircle;
 static int hoveredCircle[2];
-static float time = startTime;
+static float time = defaultStartTime;
 static int score;
 static int endScore;
 static int highscore;
@@ -327,9 +327,9 @@ static void UpdateGame(void) {
     if (!gameEnded && gameStarted) {
         time = time - 1 * delta;
     } else if (!gameEnded && !gameStarted) {
-        time = startTime;
+        time = defaultStartTime;
     } else if (gameEnded && !gameStarted) {
-        time = startTime;
+        time = defaultStartTime;
         if (endScore > highscore) {
             newHighscore = true;
             highscore = endScore;
