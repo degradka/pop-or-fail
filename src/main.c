@@ -115,6 +115,7 @@ static void UnloadGame(void);
 static void UpdateDrawFrame(void);
 
 int main(void) {
+    SetTraceLogLevel(LOG_NONE)
     InitWindow(screenWidth, screenHeight, gameTitle);
     InitAudioDevice();
     InitGame();
