@@ -1,2 +1,2 @@
 default:
-	gcc main.c -lraylib -lm -o pop-or-fail
+	gcc main.c -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -o pop-or-fail
