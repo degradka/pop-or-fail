@@ -14,7 +14,7 @@ endif
 
 ifeq ($(OS), Windows_NT)
 	# -Wl,--subsystem,windows hides the console window
-	LDFLAGS += -lopengl32 -lgdi32 -lwinmm -Wl,--subsystem,windows
+	LDFLAGS += -lopengl32 -lgdi32 -lwinmm --static -Wl,--subsystem,windows
 	EXT := $(EXT).exe
 else
 	LDFLAGS += -lGL -lm -lpthread -ldl -lrt -lX11
