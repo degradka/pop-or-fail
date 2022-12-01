@@ -4,7 +4,8 @@
 
 ### Description
 
-Simple game written in C using [Raylib](https://raylib.com) for [20 Second Game Jam](https://itch.io/jam/20-second-game-jam)
+A simple game written in C using [Raylib](https://raylib.com) for [20 Second Game Jam](https://itch.io/jam/20-second-game-jam)
+
 You have to pop the circles that match the color of the circle at the top.
 
 ### Screenshots
@@ -22,9 +23,6 @@ You have to pop the circles that match the color of the circle at the top.
  - itch.io Release: [itch.io Game Page](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
 
 ### Building the game
-
-For the build you will need to build and/or install `raylib`, `gcc` and `make`
-
 #### Building for GNU/Linux
 - `sudo apt install build-essentials` installs the libraries
 - [Follow the instructions in the Raylib repo](https://github.com/raysan5/raylib/wiki/Working-on-GNU-Linux) to compile it
@@ -35,6 +33,7 @@ For the build you will need to build and/or install `raylib`, `gcc` and `make`
 
 #### Building for Windows 
 - Install [Cygwin](https://www.cygwin.com) or [MSYS2](https://www.msys2.org)
+- Make sure to install the required packages (`gcc`, `make`)
 - [Follow the instructions in the Raylib repo](https://github.com/raysan5/raylib/wiki/Working-on-Windows) to compile it
 - `git clone https://github.com/degradka/pop-or-fail.git` clones the repo
 - `cd pop-or-fail/src` cds to the source directory
