@@ -9,7 +9,7 @@ You have to pop the circles that match the color of the circle at the top.
 
 ### Screenshots
 <br>
-<img src="https://github.com/degradka/pop-or-fail/blob/main/readme-images/readme-image001.gif" width="288px">
+<img src="./readme-images/readme-image001.gif" width="288px">
 
 ### Developers
 
@@ -23,14 +23,23 @@ You have to pop the circles that match the color of the circle at the top.
 
 ### Building the game
 
-For the build you will need to build and install `raylib`, `gcc` and `make` libraries
+For the build you will need to build and/or install `raylib`, `gcc` and `make`
 
 #### Building for GNU/Linux
-
+- `sudo apt install build-essentials` installs the libraries
+- [Follow the instructions in the Raylib repo](https://github.com/raysan5/raylib/wiki/Working-on-GNU-Linux) to compile it
 - `git clone https://github.com/degradka/pop-or-fail.git` clones the repo
 - `cd pop-or-fail/src` cds to the source directory
-- `make` builds the game
+- `make BUILDTYPE=RELEASE` builds the game in release mode
 - `./pop-or-fail` runs the game
+
+#### Building for Windows 
+- Install [Cygwin](https://www.cygwin.com) or [MSYS2](https://www.msys2.org)
+- [Follow the instructions in the Raylib repo](https://github.com/raysan5/raylib/wiki/Working-on-Windows) to compile it
+- `git clone https://github.com/degradka/pop-or-fail.git` clones the repo
+- `cd pop-or-fail/src` cds to the source directory
+- `make BUILDTYPE=RELEASE` builds the game in release mode
+- `./pop-or-fail.exe` runs the game
 
 ---
 ### License
