@@ -6,8 +6,7 @@
 //--------//
 //  Todo  // 
 //--------//
-// -- Calculate and display mistakes (clicking on wrong circles) on game end screen
-// -- Calculate and display accuracy on game end screen
+// -- Nothing! (yet)
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -444,7 +443,7 @@ static void DrawGame(void) {
 
             ClearBackground(backgroundColor);
 
-            DrawText("Time is out!", screenWidth/2-MeasureText(TextFormat("Time is Out!"), 30)/2, screenHeight/2-30, 30, BLACK);
+            DrawText("Time is out!", screenWidth/2-MeasureText(TextFormat("Time is Out!"), 30)/2, screenHeight/2, 30, BLACK);
 
         EndDrawing();
     }
