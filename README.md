@@ -8,6 +8,11 @@ A simple game written in C using [Raylib](https://raylib.com) for [20 Second Gam
 
 You have to pop the circles that match the color of the circle at the top.
 
+### Controls
+
+ - `S` while in the menu toggles sound
+ - `LMB` for everything else
+
 ### Screenshots
 <br>
 <img src="./readme-images/readme-image001.gif" width="288px">
