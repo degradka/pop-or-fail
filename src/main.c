@@ -72,11 +72,11 @@ void textProDraw(struct TextPro textPro) {
 //------------------//
 // Global Variables //
 //------------------//
-const char *gameTitle = "Pop or Fail";
-const int screenWidth = 360;    // Original: 360
-const int screenHeight = 460;   // Original: 460
-const int defaultFontSize = 20; // Original: 20
-const int gap = 10;             // Size of the gap between every circle; Original: 10
+static const char *gameTitle = "Pop or Fail";
+static const int screenWidth = 360;    // Original: 360
+static const int screenHeight = 460;   // Original: 460
+static const int defaultFontSize = 20; // Original: 20
+static const int gap = 10;             // Size of the gap between every circle; Original: 10
 static Circle circles[MAX_COL][MAX_ROW];
 static Sound fxDone;
 static Sound fxTimeOut;
