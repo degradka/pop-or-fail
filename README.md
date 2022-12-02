@@ -22,10 +22,10 @@ You have to pop the circles that match the color of the circle at the top.
  - [degradka](https://github.com/degradka) - UI, Game logic
  - [mamalord](https://github.com/mamalord) - Code optimization, Game logic
 
-### Links
+### Play the game
 
- - github.com Releases: [github.com Releases page](https://github.com/degradka/pop-or-fail/releases)
- - itch.io Release: [itch.io Game Page](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+ - github.com Releases: [Releases](https://github.com/degradka/pop-or-fail/releases)
+ - itch.io Release: [Game Page](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
 
 ### Building the game
 #### Building for GNU/Linux
