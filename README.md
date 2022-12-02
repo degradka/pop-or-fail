@@ -25,7 +25,7 @@ You have to pop the circles that match the color of the circle at the top.
 ### Play the game
 
  - github.com Releases: [Releases](https://github.com/degradka/pop-or-fail/releases)
- - itch.io Release: [Game Page](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+ - itch.io Release: [Game Page](https://degradka.itch.io/pop-or-fail)
 
 ### Building the game
 #### Building for GNU/Linux
