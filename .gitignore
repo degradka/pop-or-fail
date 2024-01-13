@@ -1,2 +1,3 @@
 *.exe
 src/pop-or-fail
+builds/
